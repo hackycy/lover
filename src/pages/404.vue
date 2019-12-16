@@ -16,7 +16,7 @@ export default {
 <style lang="scss" scoped>
 .wscn-http404-container {
   height: 100vh;
-  width: 100vw;
+  width: 100%;
   background: #333;
 
   .maintitle {
@@ -30,10 +30,12 @@ export default {
     color: #f9f1e9;
     text-align: center;
     letter-spacing: 0.1em;
-    font-size: 3em;
+    font-size: 12vh;
+    line-height: 12vh;
 
     .sorry {
       font-size: medium;
+      line-height: 1vh;
     }
   }
 }
