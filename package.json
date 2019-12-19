@@ -10,7 +10,6 @@
   "dependencies": {
     "core-js": "^3.4.3",
     "moment": "^2.24.0",
-    "moment-timezone": "^0.5.27",
     "normalize.css": "^8.0.1",
     "vant": "^2.2.16",
     "vue": "^2.6.10",
