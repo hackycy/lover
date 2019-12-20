@@ -1,12 +1,22 @@
 <template>
-  <div v-lazy:background-image="img" class="container">
+  <div
+    v-lazy:background-image="img"
+    class="container">
     <div class="card-wrap">
       <div class="card">
-        <div class="head">在一起已经</div>
-        <div ref="content" @touchstart="changeContent" class="content">
+        <div class="head">
+          在一起已经
+        </div>
+        <div
+          ref="content"
+          class="content"
+          @touchstart="changeContent"
+        >
           <span :style="{ fontSize: contentSize + '%' }">{{ showContent }}</span>
         </div>
-        <div class="foot">目标日: {{ formatTarget() }}</div>
+        <div class="foot">
+          目标日: {{ formatTarget() }}
+        </div>
       </div>
     </div>
   </div>
