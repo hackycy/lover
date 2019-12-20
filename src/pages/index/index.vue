@@ -79,7 +79,7 @@ export default {
     },
   },
   mounted() {
-    // this.showContent = this.getDay();
+    this.showContent = this.getDay();
     this.currentShowStatus = 0;
   },
   methods: {
@@ -151,14 +151,14 @@ export default {
       this.$nextTick(() => {
         let scale;
         if (contentLength === 1) {
-          scale = 5;
+          scale = 2;
         } else if (contentLength > 1 && contentLength <= 3) {
-          scale = 7;
+          scale = 4;
         } else {
-          scale = 9;
+          scale = 6;
         }
         const contentWidth = this.$refs.content.offsetWidth;
-        this.contentSize = contentWidth / this.showContent.length * scale;
+        this.contentSize = contentWidth / contentLength * scale;
       });
     },
     changeContent() {
