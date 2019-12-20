@@ -1,13 +1,19 @@
 import Vue from 'vue';
-import VueRouter from 'vue-router';
-import Vuex from 'vuex';
-import App from './App.vue';
+import moment from 'moment';
+
+import App from '@/App.vue';
+
+import router from '@/router';
+
+import 'normalize.css/normalize.css';
+
+import '@/common/common.css';
+
+moment.locale('zh-CN');
 
 Vue.config.productionTip = false;
 
-Vue.use(VueRouter);
-Vue.use(Vuex);
-
 new Vue({
+  router,
   render: h => h(App),
 }).$mount('#app');
