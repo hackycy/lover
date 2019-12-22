@@ -1,7 +1,8 @@
 <template>
   <div
     v-lazy:background-image="img"
-    class="container">
+    class="container"
+  >
     <div class="card-wrap">
       <div class="card">
         <div class="head">
@@ -225,10 +226,10 @@ export default {
     font-style: bold;
     font-weight: bold;
 
-    // span {
-    //   transition: 0.1s;
-    //   -webkit-transition: 0.1s; /* Safari */
-    // }
+    span {
+      transition: 0.1s;
+      -webkit-transition: 0.1s; /* Safari */
+    }
   }
 
   .foot {
