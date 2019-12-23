@@ -1,6 +1,9 @@
 <template>
   <div class="card">
-    <div class="head">
+    <div
+      :style="{ background: titleBgColor }"
+      class="head"
+    >
       {{ title }}
     </div>
     <div
@@ -18,7 +21,7 @@
 
 <script>
 import moment from 'moment';
-import { strLength } from '@/common/util';
+import { strLength, lunar2solar } from '@/common/util';
 
 export default {
   name: 'DateCard',
@@ -26,6 +29,10 @@ export default {
     title: {
       type: String,
       default: '安利标题',
+    },
+    titleBgColor: {
+      type: String,
+      default: '#3385bc',
     },
     /**
      * 目标日大于现在则为倒数，目标日为过去则为正数
@@ -119,30 +126,111 @@ export default {
     getMomentTarget() {
       return moment(this.targetDate, 'YYYY-MM-DD');
     },
+    /**
+     * 是否为倒数
+     */
+    isCountDown() {
+      if (this.repeat) {
+        return true;
+      }
+      if (this.lunar) {
+        const solar = lunar2solar(this.getMomentTarget());
+        const solarMoment = moment(solar.date, 'YYYY-MM-DD');
+        return this.getMomentNow().isBefore(solarMoment);
+      }
+      return this.getMomentNow().isBefore(this.getMomentTarget());
+    },
+    /**
+     * 获取过去时间
+     */
+    getMomentPassCheck() {
+      const now = this.getMomentNow();
+      const target = this.getMomentTarget();
+      if (this.lunar) {
+        if (!this.repeat) {
+          const solar = lunar2solar(target);
+          const solarMoment = moment(solar.date, 'YYYY-MM-DD');
+          return moment.min(this.getMomentNow(), solarMoment);
+        }
+        // 先提取目标日的月和日转换成今年的月日
+        let now2Lunar = moment(`${now.get('year')}-${target.get('month') + 1}-${target.get('date')}`, 'YYYY-MM-DD');
+        // 在进行农历转换
+        let solar = lunar2solar(now2Lunar);
+        let solarMoment = moment(solar.date, 'YYYY-MM-DD');
+        // 判断是否在现在是否已经超过目标日转换后的公历，如果超过则转换成下一年。
+        if (!solarMoment.isAfter(this.getMomentNow()) && !solarMoment.isSame(this.getMomentNow())) {
+          now2Lunar = moment(`${now.get('year') + 1}-${target.get('month') + 1}-${target.get('date')}`, 'YYYY-MM-DD');
+          solar = lunar2solar(now2Lunar);
+          solarMoment = moment(solar.date, 'YYYY-MM-DD');
+        }
+        return moment.min(this.getMomentNow(), solarMoment);
+      }
+      return moment.min(this.getMomentNow(), this.getMomentTarget());
+    },
+    getMomentPass() {
+      return moment(this.getMomentPassCheck().format('YYYY-MM-DD'));
+    },
+    /**
+     * 获取未来时间
+     */
+    getMomentFeatureCheck() {
+      const now = this.getMomentNow();
+      const target = this.getMomentTarget();
+      if (this.lunar) {
+        if (!this.repeat) {
+          const solar = lunar2solar(target);
+          const solarMoment = moment(solar.date, 'YYYY-MM-DD');
+          return moment.max(this.getMomentNow(), solarMoment);
+        }
+        // 先提取目标日的月和日转换成今年的月日
+        let now2Lunar = moment(`${now.get('year')}-${target.get('month') + 1}-${target.get('date')}`, 'YYYY-MM-DD');
+        // 在进行农历转换
+        let solar = lunar2solar(now2Lunar);
+        let solarMoment = moment(solar.date, 'YYYY-MM-DD');
+        // 判断是否在现在是否已经超过目标日转换后的公历，如果超过则转换成下一年。
+        if (!solarMoment.isAfter(this.getMomentNow()) && !solarMoment.isSame(this.getMomentNow())) {
+          now2Lunar = moment(`${now.get('year') + 1}-${target.get('month') + 1}-${target.get('date')}`, 'YYYY-MM-DD');
+          solar = lunar2solar(now2Lunar);
+          solarMoment = moment(solar.date, 'YYYY-MM-DD');
+        }
+        return moment.max(this.getMomentNow(), solarMoment);
+      }
+      return moment.max(this.getMomentNow(), this.getMomentTarget());
+    },
+    getMomentFeature() {
+      return moment(this.getMomentFeatureCheck().format('YYYY-MM-DD'));
+    },
+    /**
+     * 目标日格式转换
+     */
     formatTarget() {
-      return this.getMomentTarget().format('YYYY-MM-DD dddd');
+      const target = this.getMomentTarget();
+      if (this.lunar) {
+        return target.format('农历 YYYY-MM-DD');
+      }
+      return target.format('YYYY-MM-DD dddd');
     },
     getDay() {
-      const time = this.getMomentNow().diff(this.getMomentTarget(), 'days');
+      const time = this.getMomentFeature().diff(this.getMomentPass(), 'days');
       return `${time}`;
     },
     getYear() {
-      const years = this.getMomentNow().diff(this.getMomentTarget(), 'years');
+      const years = this.getMomentFeature().diff(this.getMomentPass(), 'years');
       if (years > 0) {
         // 获取与target相隔了time年的那天
-        const momentAddYear = this.getMomentTarget().add(years, 'years');
+        const momentAddYear = this.getMomentPass().add(years, 'years');
         // 判断月份差值
-        const months = this.getMomentNow().diff(momentAddYear, 'months');
+        const months = this.getMomentFeature().diff(momentAddYear, 'months');
         // 判断是否大于当前时间所在月份
         if (months > 0) {
           const momentSubMonth = momentAddYear.add(months, 'months');
-          const days = this.getMomentNow().diff(momentSubMonth, 'days');
+          const days = this.getMomentFeature().diff(momentSubMonth, 'days');
           if (days > 0) {
             return `${years}年${months}个月${days}天`;
           }
           return `${years}年${months}个月`;
         }
-        const days = this.getMomentNow().diff(momentAddYear, 'days');
+        const days = this.getMomentFeature().diff(momentAddYear, 'days');
         if (days > 0) {
           return `${years}年${days}天`;
         }
@@ -151,10 +239,10 @@ export default {
       return '';
     },
     getMonth() {
-      const months = this.getMomentNow().diff(this.getMomentTarget(), 'months');
+      const months = this.getMomentFeature().diff(this.getMomentPass(), 'months');
       if (months > 0) {
-        const momentAddMonth = this.getMomentTarget().add(months, 'months');
-        const days = this.getMomentNow().diff(momentAddMonth, 'days');
+        const momentAddMonth = this.getMomentPass().add(months, 'months');
+        const days = this.getMomentFeature().diff(momentAddMonth, 'days');
         if (days > 0) {
           return `${months}个月${days}天`;
         }
@@ -163,10 +251,10 @@ export default {
       return '';
     },
     getWeek() {
-      const weeks = this.getMomentNow().diff(this.getMomentTarget(), 'weeks');
+      const weeks = this.getMomentFeature().diff(this.getMomentPass(), 'weeks');
       if (weeks > 0) {
-        const momentAddWeek = this.getMomentTarget().add(weeks, 'weeks');
-        const days = this.getMomentNow().diff(momentAddWeek, 'days');
+        const momentAddWeek = this.getMomentPass().add(weeks, 'weeks');
+        const days = this.getMomentFeature().diff(momentAddWeek, 'days');
         if (days > 0) {
           return `${weeks}周${days}天`;
         }
@@ -181,7 +269,7 @@ export default {
       this.$nextTick(() => {
         let scale;
         if (contentLength === 1) {
-          scale = 5;
+          scale = 4;
         } else if (contentLength > 1 && contentLength <= 5) {
           scale = 8;
         } else {
@@ -191,6 +279,9 @@ export default {
         this.contentSize = contentWidth / contentLength * scale;
       });
     },
+    /**
+     * 转换显示格式
+     */
     changeContent() {
       if (this.currentShowStatus === 3) {
         this.currentShowStatus = 0;
@@ -203,6 +294,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+$border-radius: 6px;
+
 .card {
   background: transparent;
   padding: 4vw;
@@ -215,12 +308,14 @@ export default {
   font-size:16px;
 
   .head {
-    background: #3385bc;
+    // background: #3385bc;
     height: 8vh;
     line-height: 8vh;
     text-align: center;
     color: #ffffff;
     font-size: 3vh;
+    border-top-left-radius: $border-radius;
+    border-top-right-radius: $border-radius;
   }
 
   .content {
@@ -240,6 +335,8 @@ export default {
     font-size: 2vh;
     text-align: center;
     background: #f3f3f3;
+    border-bottom-left-radius: $border-radius;
+    border-bottom-right-radius: $border-radius;
   }
 }
 </style>

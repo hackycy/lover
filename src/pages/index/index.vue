@@ -10,20 +10,26 @@
       >
         <swipe-item>
           <date-card
-            title="在一起已经"
-            target-date="2017-3-1"
-          />
-        </swipe-item>
-        <swipe-item>
-          <date-card
-            title="距离小宝贝生日还有"
+            title="我们在一起"
             target-date="2017-3-22"
           />
         </swipe-item>
         <swipe-item>
           <date-card
-            title="距离小宝贝的男人生日还有"
-            target-date="2017-3-22"
+            title-bg-color="pink"
+            title="距离小宝贝生日"
+            :lunar="true"
+            :repeat="true"
+            target-date="1995-12-8"
+          />
+        </swipe-item>
+        <swipe-item>
+          <date-card
+            title-bg-color="orange"
+            title="距离小宝贝的男人生日"
+            :lunar="true"
+            :repeat="true"
+            target-date="1997-6-26"
           />
         </swipe-item>
         <div

@@ -1,3 +1,5 @@
+import { calendar } from '@/common/calendar';
+
 /**
  * 判断是否为整数
  * @param {*} num
@@ -21,4 +23,12 @@ export function strLength(str) {
     }
   }
   return len;
+}
+
+/**
+ * 农历转公历
+ * @param {Moment} target
+ */
+export function lunar2solar(target) {
+  return calendar.lunar2solar(target.get('year'), target.get('month') + 1, target.get('date'));
 }
