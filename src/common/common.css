@@ -5,10 +5,6 @@
    user-select:none;
 }
 
-body {
-  font-size:16px;
-}
-
 #app {
   max-width: 768px;
   margin: auto;

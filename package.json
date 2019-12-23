@@ -8,6 +8,7 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@tony801015/chinese-lunar": "^0.10.0",
     "core-js": "^3.4.3",
     "moment": "^2.24.0",
     "normalize.css": "^8.0.1",
