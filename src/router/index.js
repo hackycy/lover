@@ -3,7 +3,6 @@ import VueRouter from 'vue-router';
 
 import Page404 from '@/pages/404.vue';
 import Index from '@/pages/index/index.vue';
-import FireWork from '@/pages/firework/index.vue';
 
 Vue.use(VueRouter);
 
@@ -15,10 +14,6 @@ export const routes = [
   {
     path: '/',
     component: Index,
-  },
-  {
-    path: '/firework',
-    component: FireWork,
   },
   // 404 page must be placed at the end !!!
   {
