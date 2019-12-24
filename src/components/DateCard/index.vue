@@ -8,8 +8,8 @@
     </div>
     <div
       ref="content"
+      v-tap="changeContent"
       class="content"
-      @touchstart="changeContent"
     >
       <span :style="{ fontSize: contentSize + '%' }">{{ showContent }}</span>
     </div>
@@ -283,6 +283,7 @@ export default {
      * 转换显示格式
      */
     changeContent() {
+      console.log('tap');
       if (this.currentShowStatus === 3) {
         this.currentShowStatus = 0;
       } else {
