@@ -45,12 +45,15 @@
 
 <script>
 import Vue from 'vue';
-import { Lazyload, Swipe, SwipeItem } from 'vant';
+import {
+  Lazyload, Swipe, SwipeItem, Toast,
+} from 'vant';
 
 import bg from '@/assets/bg.jpeg';
 import DateCard from '@/components/DateCard/index.vue';
 
 Vue.use(Lazyload);
+Vue.use(Toast);
 
 export default {
   name: 'Index',
@@ -64,6 +67,12 @@ export default {
       img: bg,
       currentCard: 0,
     };
+  },
+  mounted() {
+    this.$toast({
+      position: 'bottom',
+      message: '卡片可以左右滑动噢~',
+    });
   },
   methods: {
     onChange(index) {
@@ -90,10 +99,10 @@ export default {
 }
 .custom-indicator {
   position: absolute;
-  padding: 1px;
+  padding: 2px;
   bottom: 4vw;
   right: 4vw;
-  font-size: 1vw;
+  font-size: 1vh;
   color: #fff;
   background: rgba(0, 0, 0, 0.1);
 }
