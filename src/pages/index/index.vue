@@ -3,6 +3,7 @@
     v-lazy:background-image="img"
     class="container"
   >
+    <fire-work />
     <div class="card-wrap">
       <swipe
         :loop="false"
@@ -50,7 +51,8 @@ import {
 } from 'vant';
 
 import bg from '@/assets/bg.jpeg';
-import DateCard from '@/components/DateCard/index.vue';
+import DateCard from '@/components/datecard/index.vue';
+import FireWork from '@/components/firework/index.vue';
 
 Vue.use(Lazyload);
 Vue.use(Toast);
@@ -61,6 +63,7 @@ export default {
     DateCard,
     Swipe,
     SwipeItem,
+    FireWork,
   },
   data() {
     return {
@@ -95,7 +98,7 @@ export default {
 
 .card-wrap {
   width: 100%;
-  opacity: 0.9;
+  opacity: 0.8;
 }
 .custom-indicator {
   position: absolute;
