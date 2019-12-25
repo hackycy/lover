@@ -12,6 +12,7 @@
 <script>
 /* eslint-disable no-param-reassign */
 import { getRandom, createRandomFire } from '@/common/fireworks';
+import { requestAnimationFrame } from '@/common/util';
 
 export default {
   name: 'FireWork',
@@ -42,7 +43,7 @@ export default {
         if (this.fires.length) {
           this.animate();
         }
-        window.requestAnimationFrame(this.animate);
+        requestAnimationFrame(this.animate);
       });
     },
     animate() {
@@ -87,7 +88,7 @@ export default {
           });
         });
       }
-      window.requestAnimationFrame(this.animate);
+      requestAnimationFrame(this.animate);
     },
   },
 };

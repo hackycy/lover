@@ -39,3 +39,17 @@ export function lunar2solar(target) {
 export function solar2lunar(target) {
   return calendar.solar2lunar(target.get('year'), target.get('month') + 1, target.get('date'));
 }
+
+/**
+ * 添加requestAnimationFrame兼容做法
+ */
+function requestAnimationFrameFunc() {
+  return window.requestAnimationFrame
+    || window.mozRequestAnimationFrame
+    || window.webkitRequestAnimationFrame
+    || window.msRequestAnimationFrame
+    // eslint-disable-next-line func-names
+    || function (callback) { window.setTimeout(callback, 1000 / 60); };
+}
+
+export const requestAnimationFrame = requestAnimationFrameFunc();
