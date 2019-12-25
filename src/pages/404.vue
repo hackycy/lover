@@ -2,7 +2,10 @@
   <div class="wscn-http404-container">
     <h1 class="maintitle">
       404<br>
-      <span class="sorry">您访问的页面不存在</span>
+      <span class="sorry">页面不存在</span><br>
+      <router-link to="/">
+        返回首页
+      </router-link>
     </h1>
   </div>
 </template>
@@ -37,6 +40,29 @@ export default {
       font-size: medium;
       line-height: 1vh;
     }
+
+    a {
+      font-size: medium;
+      line-height: 1vh;
+      color: #f9f1e9;
+    }
+
+    a:link {
+      color: #f9f1e9;
+    }
+
+    a:visited {
+      color: #f9f1e9;
+    }
+
+    a:hover {
+      color: #f9f1e9;
+    }
+
+    a:active {
+      color: #f9f1e9;
+    }
+
   }
 }
 </style>

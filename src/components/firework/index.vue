@@ -98,6 +98,8 @@ export default {
   position: fixed;
   width: 100%;
   height: 100%;
+  max-width: 768px;
+  margin: auto;
 
   .canvas {
     height: 100%;
