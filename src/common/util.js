@@ -1,10 +1,9 @@
 import { calendar } from '@/common/calendar';
-
+// eslint-disable-next-line import/prefer-default-export
 /**
  * 判断是否为整数
  * @param {*} num
  */
-// eslint-disable-next-line import/prefer-default-export
 export function isInt(num) {
   return Math.floor(num) === num;
 }
@@ -26,9 +25,17 @@ export function strLength(str) {
 }
 
 /**
- * 农历转公历
+ * 农历转公历，需要传入Moment对象
  * @param {Moment} target
  */
 export function lunar2solar(target) {
   return calendar.lunar2solar(target.get('year'), target.get('month') + 1, target.get('date'));
+}
+
+/**
+ * 公历转农历，需要传入Moment对象
+ * @param {Moment} target
+ */
+export function solar2lunar(target) {
+  return calendar.solar2lunar(target.get('year'), target.get('month') + 1, target.get('date'));
 }

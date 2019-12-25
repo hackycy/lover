@@ -13,7 +13,10 @@
     >
       <span :style="{ fontSize: contentSize + '%' }">{{ showContent }}</span>
     </div>
-    <div class="foot">
+    <div
+      v-tap="changeLorS"
+      class="foot"
+    >
       目标日: {{ formatTarget() }}
     </div>
   </div>
@@ -21,7 +24,7 @@
 
 <script>
 import moment from 'moment';
-import { strLength, lunar2solar } from '@/common/util';
+import { strLength, lunar2solar, solar2lunar } from '@/common/util';
 
 export default {
   name: 'DateCard',
@@ -64,6 +67,8 @@ export default {
       contentSize: 100,
       // 0为显示天数，1为显示年月日，2为显示月日，3为显示周日
       currentShowStatus: -1,
+      // 0为显示农历目标日， 1为显示新历目标日
+      currentShowLorS: 1,
     };
   },
   watch: {
@@ -204,10 +209,21 @@ export default {
      * 目标日格式转换
      */
     formatTarget() {
-      const target = this.getMomentTarget();
+      let target = this.getMomentTarget();
       if (this.lunar) {
-        return target.format('农历 YYYY-MM-DD');
+        if (this.repeat) {
+          target = this.getMomentFeature();
+        } else {
+          const solar = lunar2solar(this.getMomentTarget());
+          target = moment(solar.date, 'YYYY-MM-DD');
+        }
       }
+      // 显示农历
+      if (this.currentShowLorS === 0) {
+        const lunar = solar2lunar(target);
+        return `${lunar.gzYear}(${lunar.lYear}) ${lunar.IMonthCn} ${lunar.IDayCn}`;
+      }
+      // 显示公历
       return target.format('YYYY-MM-DD dddd');
     },
     getDay() {
@@ -288,6 +304,16 @@ export default {
       } else {
         this.currentShowStatus += 1;
       }
+    },
+    changeLorS() {
+      if (this.lunar && this.currentShowLorS === 1) {
+        this.currentShowLorS = 0;
+      } else if (this.lunar && this.currentShowLorS === 0) {
+        this.currentShowLorS = 1;
+      } else {
+        this.currentShowLorS = 1;
+      }
+      this.formatTarget();
     },
   },
 };
