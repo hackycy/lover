@@ -157,13 +157,19 @@ export default {
           const solarMoment = moment(solar.date, 'YYYY-MM-DD');
           return moment.min(this.getMomentNow(), solarMoment);
         }
+        // 因为直接获取当年年份会出现一个问题：农历是2019年12月8日，但是还没过，而新历已经是2020年，则下面代码就会提取错误
         // 先提取目标日的月和日转换成今年的月日
-        let now2Lunar = moment(`${now.get('year')}-${target.get('month') + 1}-${target.get('date')}`, 'YYYY-MM-DD');
+        let now2Lunar = moment(`${now.get('year') - 1}-${target.get('month') + 1}-${target.get('date')}`, 'YYYY-MM-DD');
         // 在进行农历转换
         let solar = lunar2solar(now2Lunar);
         let solarMoment = moment(solar.date, 'YYYY-MM-DD');
+        if (!solarMoment.isAfter(now)) {
+          now2Lunar = moment(`${now.get('year')}-${target.get('month') + 1}-${target.get('date')}`, 'YYYY-MM-DD');
+          solar = lunar2solar(now2Lunar);
+          solarMoment = moment(solar.date, 'YYYY-MM-DD');
+        }
         // 判断是否在现在是否已经超过目标日转换后的公历，如果超过则转换成下一年。
-        if (!solarMoment.isAfter(this.getMomentNow()) && !solarMoment.isSame(this.getMomentNow())) {
+        if (!solarMoment.isAfter(this.getMomentNow())) {
           now2Lunar = moment(`${now.get('year') + 1}-${target.get('month') + 1}-${target.get('date')}`, 'YYYY-MM-DD');
           solar = lunar2solar(now2Lunar);
           solarMoment = moment(solar.date, 'YYYY-MM-DD');
@@ -187,13 +193,17 @@ export default {
           const solarMoment = moment(solar.date, 'YYYY-MM-DD');
           return moment.max(this.getMomentNow(), solarMoment);
         }
-        // 先提取目标日的月和日转换成今年的月日
-        let now2Lunar = moment(`${now.get('year')}-${target.get('month') + 1}-${target.get('date')}`, 'YYYY-MM-DD');
+        let now2Lunar = moment(`${now.get('year') - 1}-${target.get('month') + 1}-${target.get('date')}`, 'YYYY-MM-DD');
         // 在进行农历转换
         let solar = lunar2solar(now2Lunar);
         let solarMoment = moment(solar.date, 'YYYY-MM-DD');
+        if (!solarMoment.isAfter(now)) {
+          now2Lunar = moment(`${now.get('year')}-${target.get('month') + 1}-${target.get('date')}`, 'YYYY-MM-DD');
+          solar = lunar2solar(now2Lunar);
+          solarMoment = moment(solar.date, 'YYYY-MM-DD');
+        }
         // 判断是否在现在是否已经超过目标日转换后的公历，如果超过则转换成下一年。
-        if (!solarMoment.isAfter(this.getMomentNow()) && !solarMoment.isSame(this.getMomentNow())) {
+        if (!solarMoment.isAfter(this.getMomentNow())) {
           now2Lunar = moment(`${now.get('year') + 1}-${target.get('month') + 1}-${target.get('date')}`, 'YYYY-MM-DD');
           solar = lunar2solar(now2Lunar);
           solarMoment = moment(solar.date, 'YYYY-MM-DD');
