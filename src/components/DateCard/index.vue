@@ -126,7 +126,7 @@ export default {
   },
   methods: {
     getMomentNow() {
-      return moment();
+      return moment(moment().format('YYYY-MM-DD'));
     },
     getMomentTarget() {
       return moment(this.targetDate, 'YYYY-MM-DD');
@@ -163,13 +163,13 @@ export default {
         // 在进行农历转换
         let solar = lunar2solar(now2Lunar);
         let solarMoment = moment(solar.date, 'YYYY-MM-DD');
-        if (!solarMoment.isAfter(now)) {
+        if (!solarMoment.isAfter(now) && !solarMoment.isSame(now)) {
           now2Lunar = moment(`${now.get('year')}-${target.get('month') + 1}-${target.get('date')}`, 'YYYY-MM-DD');
           solar = lunar2solar(now2Lunar);
           solarMoment = moment(solar.date, 'YYYY-MM-DD');
         }
         // 判断是否在现在是否已经超过目标日转换后的公历，如果超过则转换成下一年。
-        if (!solarMoment.isAfter(this.getMomentNow())) {
+        if (!solarMoment.isAfter(now) && !solarMoment.isSame(now)) {
           now2Lunar = moment(`${now.get('year') + 1}-${target.get('month') + 1}-${target.get('date')}`, 'YYYY-MM-DD');
           solar = lunar2solar(now2Lunar);
           solarMoment = moment(solar.date, 'YYYY-MM-DD');
@@ -197,13 +197,14 @@ export default {
         // 在进行农历转换
         let solar = lunar2solar(now2Lunar);
         let solarMoment = moment(solar.date, 'YYYY-MM-DD');
-        if (!solarMoment.isAfter(now)) {
+        if (!solarMoment.isAfter(now) && !solarMoment.isSame(now)) {
           now2Lunar = moment(`${now.get('year')}-${target.get('month') + 1}-${target.get('date')}`, 'YYYY-MM-DD');
           solar = lunar2solar(now2Lunar);
           solarMoment = moment(solar.date, 'YYYY-MM-DD');
         }
         // 判断是否在现在是否已经超过目标日转换后的公历，如果超过则转换成下一年。
-        if (!solarMoment.isAfter(this.getMomentNow())) {
+        if (!solarMoment.isAfter(now) && !solarMoment.isSame(now)) {
+          console.log(solarMoment.isSame(now));
           now2Lunar = moment(`${now.get('year') + 1}-${target.get('month') + 1}-${target.get('date')}`, 'YYYY-MM-DD');
           solar = lunar2solar(now2Lunar);
           solarMoment = moment(solar.date, 'YYYY-MM-DD');
