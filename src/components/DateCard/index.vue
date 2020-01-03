@@ -17,7 +17,7 @@
       v-tap="changeLorS"
       class="foot"
     >
-      目标日: {{ formatTarget() }}
+      {{ footTip() }}: {{ formatTarget() }}
     </div>
   </div>
 </template>
@@ -215,6 +215,9 @@ export default {
     getMomentFeature() {
       return moment(this.getMomentFeatureCheck().format('YYYY-MM-DD'));
     },
+    footTip() {
+      return this.isCountDown() ? '目标日' : '起始日';
+    },
     /**
      * 目标日格式转换
      */
@@ -330,7 +333,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-$border-radius: 6px;
+$border-radius: 2vw;
 
 .card {
   background: transparent;
