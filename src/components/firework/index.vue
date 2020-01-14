@@ -37,7 +37,8 @@ export default {
         this.width = canvas.width;
         this.height = canvas.height;
         this.ctx = ctx;
-        for (let i = 0; i < 6; i += 1) {
+        // 烟花数量
+        for (let i = 0; i < 10; i += 1) {
           this.fires.push(createRandomFire());
         }
         if (this.fires.length) {

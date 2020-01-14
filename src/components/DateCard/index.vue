@@ -1,34 +1,64 @@
 <template>
   <div class="card">
-    <div
-      :style="{ background: titleBgColor }"
-      class="head"
-    >
-      {{ title }}
-    </div>
-    <div
-      ref="content"
-      v-tap="changeContent"
-      class="content"
-    >
-      <span :style="{ fontSize: contentSize + '%' }">{{ showContent }}</span>
-    </div>
-    <div
-      v-tap="changeLorS"
-      class="foot"
-    >
-      {{ footTip() }}: {{ formatTarget() }}
+    <div v-lazy:background-image="showImage" class="container">
+      <div
+        :style="{ background: showTitleBgColor, color: textModeColor }"
+        class="head">{{ title }}</div>
+      <div
+        v-tap="changeContent"
+        :style="{ background: showBodyBgColor, color: textModeColor }"
+        class="content"
+        ref="content"
+      >
+        <span
+          :style="{ fontSize: contentSize + '%', color: textModeColor }">
+          {{ showContent }}
+        </span>
+      </div>
+      <div
+        v-tap="changeLorS"
+        :style="{ background: showBodyBgColor, color: textModeColor }"
+        class="foot"
+      >{{ footTip() }}: {{ formatTarget() }}</div>
     </div>
   </div>
 </template>
 
 <script>
 import moment from 'moment';
+import Vue from 'vue';
+import { Lazyload } from 'vant';
+
+import bg from '@/assets/bg.jpeg';
 import { strLength, lunar2solar, solar2lunar } from '@/common/util';
+
+Vue.use(Lazyload, {
+  loading: bg,
+});
 
 export default {
   name: 'DateCard',
   props: {
+    backdropMode: {
+      type: String,
+      default: 'color',
+      validator(value) {
+        // 这个值必须匹配下列字符串中的一个
+        return ['color', 'image'].indexOf(value) !== -1;
+      },
+    },
+    textMode: {
+      type: String,
+      default: 'dark',
+      validator(value) {
+        // 这个值必须匹配下列字符串中的一个
+        return ['dark', 'light', 'auto'].indexOf(value) !== -1;
+      },
+    },
+    backdropImage: {
+      type: String,
+      default: bg,
+    },
     title: {
       type: String,
       default: '安利标题',
@@ -70,6 +100,23 @@ export default {
       // 0为显示农历目标日， 1为显示新历目标日
       currentShowLorS: 1,
     };
+  },
+  computed: {
+    textModeColor() {
+      if (this.textMode === 'dark') {
+        return 'black';
+      }
+      return '#ffffff';
+    },
+    showImage() {
+      return this.backdropMode === 'image' ? this.backdropImage : '';
+    },
+    showTitleBgColor() {
+      return this.backdropMode === 'image' ? 'transparent' : this.titleBgColor;
+    },
+    showBodyBgColor() {
+      return this.backdropMode === 'image' ? 'transparent' : '#f3f3f3';
+    },
   },
   watch: {
     /**
@@ -155,7 +202,7 @@ export default {
         if (!this.repeat) {
           const solar = lunar2solar(target);
           const solarMoment = moment(solar.date, 'YYYY-MM-DD');
-          return moment.min(this.getMomentNow(), solarMoment);
+          return moment.min(now, solarMoment);
         }
         // 因为直接获取当年年份会出现一个问题：农历是2019年12月8日，但是还没过，而新历已经是2020年，则下面代码就会提取错误
         // 先提取目标日的月和日转换成今年的月日
@@ -174,9 +221,15 @@ export default {
           solar = lunar2solar(now2Lunar);
           solarMoment = moment(solar.date, 'YYYY-MM-DD');
         }
-        return moment.min(this.getMomentNow(), solarMoment);
+        return moment.min(now, solarMoment);
       }
-      return moment.min(this.getMomentNow(), this.getMomentTarget());
+      if (this.repeat) {
+        if (!target.isAfter(now) && !target.isSame(now)) {
+          const newTarget = moment(`${now.get('year')}-${target.get('month') + 1}-${target.get('date')}`, 'YYYY-MM-DD');
+          return moment.min(now, newTarget);
+        }
+      }
+      return moment.min(now, target);
     },
     getMomentPass() {
       return moment(this.getMomentPassCheck().format('YYYY-MM-DD'));
@@ -191,8 +244,10 @@ export default {
         if (!this.repeat) {
           const solar = lunar2solar(target);
           const solarMoment = moment(solar.date, 'YYYY-MM-DD');
-          return moment.max(this.getMomentNow(), solarMoment);
+          return moment.max(now, solarMoment);
         }
+        // 因为直接获取当年年份会出现一个问题：农历是2019年12月8日，但是还没过，而新历已经是2020年，则下面代码就会提取错误
+        // 先提取目标日的月和日转换成今年的月日
         let now2Lunar = moment(`${now.get('year') - 1}-${target.get('month') + 1}-${target.get('date')}`, 'YYYY-MM-DD');
         // 在进行农历转换
         let solar = lunar2solar(now2Lunar);
@@ -208,9 +263,15 @@ export default {
           solar = lunar2solar(now2Lunar);
           solarMoment = moment(solar.date, 'YYYY-MM-DD');
         }
-        return moment.max(this.getMomentNow(), solarMoment);
+        return moment.max(now, solarMoment);
       }
-      return moment.max(this.getMomentNow(), this.getMomentTarget());
+      if (this.repeat) {
+        if (!target.isAfter(now) && !target.isSame(now)) {
+          const newTarget = moment(`${now.get('year')}-${target.get('month') + 1}-${target.get('date')}`, 'YYYY-MM-DD');
+          return moment.max(now, newTarget);
+        }
+      }
+      return moment.max(now, target);
     },
     getMomentFeature() {
       return moment(this.getMomentFeatureCheck().format('YYYY-MM-DD'));
@@ -230,6 +291,9 @@ export default {
           const solar = lunar2solar(this.getMomentTarget());
           target = moment(solar.date, 'YYYY-MM-DD');
         }
+      }
+      if (this.repeat) {
+        target = this.getMomentFeature();
       }
       // 显示农历
       if (this.currentShowLorS === 0) {
@@ -344,38 +408,58 @@ $border-radius: 2vw;
   flex-direction: column;
   -webkit-flex-direction: column;
   font-family: sans-serif;
-  font-size:16px;
+  font-size: 16px;
+  transition: 1s;
+  -moz-transition: 1s;
+  -webkit-transition: 1s;
+  -o-transition: 1s;
 
-  .head {
-    // background: #3385bc;
-    height: 8vh;
-    line-height: 8vh;
-    text-align: center;
-    color: #ffffff;
-    font-size: 3vh;
-    border-top-left-radius: $border-radius;
-    border-top-right-radius: $border-radius;
-  }
+  .container {
+    background: #ffffff;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-clip: border-box;
+    border-radius: $border-radius;
+    // color: #ffffff;
+    transition: .5s;
+    -moz-transition: .5s;
+    -webkit-transition: .5s;
+    -o-transition: .5s;
 
-  .content {
-    height: 30vh;
-    line-height: 30vh;
-    text-align: center;
-    color: #282828;
-    font-style: bold;
-    font-weight: bold;
-    background: #f3f3f3;
-  }
+    .head {
+      // background: #3385bc;
+      height: 8vh;
+      line-height: 8vh;
+      text-align: center;
+      font-size: 2.5vh;
+      border-top-left-radius: $border-radius;
+      border-top-right-radius: $border-radius;
+      // opacity: 0.2;
+    }
 
-  .foot {
-    height: 7vh;
-    line-height: 7vh;
-    color: #8e8c8d;
-    font-size: 2vh;
-    text-align: center;
-    background: #f3f3f3;
-    border-bottom-left-radius: $border-radius;
-    border-bottom-right-radius: $border-radius;
+    .content {
+      height: 30vh;
+      line-height: 30vh;
+      text-align: center;
+      color: #282828;
+      font-style: bold;
+      font-weight: bold;
+      // background: #f3f3f3;
+      opacity: 0.7;
+    }
+
+    .foot {
+      height: 7vh;
+      line-height: 7vh;
+      color: #8e8c8d;
+      font-size: 1.5vh;
+      text-align: center;
+      background: #f3f3f3;
+      border-bottom-left-radius: $border-radius;
+      border-bottom-right-radius: $border-radius;
+      // background: #f3f3f3;
+      // opacity: 0.7;
+    }
   }
 }
 </style>
