@@ -34,6 +34,7 @@ import { strLength, lunar2solar, solar2lunar } from '@/common/util';
 
 Vue.use(Lazyload, {
   loading: bg,
+  error: bg,
 });
 
 export default {
@@ -419,6 +420,7 @@ $border-radius: 2vw;
     background-repeat: no-repeat;
     background-size: cover;
     background-clip: border-box;
+    background-position: center;
     border-radius: $border-radius;
     // color: #ffffff;
     transition: .5s;
