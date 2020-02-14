@@ -26,16 +26,9 @@
 
 <script>
 import moment from 'moment';
-import Vue from 'vue';
-import { Lazyload } from 'vant';
-
 import bg from '@/assets/bg.jpeg';
-import { strLength, lunar2solar, solar2lunar } from '@/common/util';
 
-Vue.use(Lazyload, {
-  loading: bg,
-  error: bg,
-});
+import { strLength, lunar2solar, solar2lunar } from '@/common/util';
 
 export default {
   name: 'DateCard',

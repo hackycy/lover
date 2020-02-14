@@ -10,6 +10,8 @@ import 'normalize.css/normalize.css';
 
 import '@/common/common.css';
 
+import '@/common/vant';
+
 moment.locale('zh-CN');
 
 Vue.config.productionTip = false;

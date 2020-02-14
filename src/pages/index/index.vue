@@ -4,11 +4,11 @@
   >
     <fire-work />
     <div class="card-wrap">
-      <swipe
+      <van-swipe
         :loop="false"
         @change="onChange"
       >
-        <swipe-item>
+        <van-swipe-item>
           <date-card
             title="我们在一起已经"
             target-date="2017-3-22"
@@ -16,8 +16,8 @@
             :backdrop-image="ourImage"
             text-mode="light"
           />
-        </swipe-item>
-        <swipe-item>
+        </van-swipe-item>
+        <van-swipe-item>
           <date-card
             title-bg-color="pink"
             title="距离小宝贝生日还有"
@@ -28,8 +28,8 @@
             :backdrop-image="herImage"
             text-mode="light"
           />
-        </swipe-item>
-        <swipe-item>
+        </van-swipe-item>
+        <van-swipe-item>
           <date-card
             title-bg-color="orange"
             title="距离小宝贝的男人生日还有"
@@ -40,31 +40,27 @@
             :backdrop-image="meImage"
             text-mode="light"
           />
-        </swipe-item>
-        <swipe-item>
+        </van-swipe-item>
+        <van-swipe-item>
           <date-card
             title-bg-color="pink"
             title="距离周年纪念还有"
             :repeat="true"
             target-date="2017-3-22"
           />
-        </swipe-item>
+        </van-swipe-item>
         <div
           slot="indicator"
           class="custom-indicator"
         >
           {{ currentCard + 1 }}/4
         </div>
-      </swipe>
+      </van-swipe>
     </div>
   </div>
 </template>
 
 <script>
-import Vue from 'vue';
-import {
-  Swipe, SwipeItem, Toast,
-} from 'vant';
 
 import our from '@/assets/our.jpeg';
 import me from '@/assets/me.jpeg';
@@ -72,15 +68,10 @@ import her from '@/assets/her.jpeg';
 import DateCard from '@/components/datecard/index.vue';
 import FireWork from '@/components/firework/index.vue';
 
-// Vue.use(Lazyload);
-Vue.use(Toast);
-
 export default {
   name: 'Index',
   components: {
     DateCard,
-    Swipe,
-    SwipeItem,
     FireWork,
   },
   data() {
