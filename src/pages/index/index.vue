@@ -53,7 +53,7 @@
           slot="indicator"
           class="custom-indicator"
         >
-          {{ currentCard + 1 }}/4
+          {{ currentCard + 1 }}/1
         </div>
       </van-swipe>
     </div>

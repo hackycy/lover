@@ -228,7 +228,7 @@ export default {
       }
       if (this.repeat) {
         if (!target.isAfter(now) && !target.isSame(now)) {
-          const newTarget = moment(`${now.get('year')}-${target.get('month') + 1}-${target.get('date')}`, 'YYYY-MM-DD');
+          const newTarget = moment(`${now.get('year') + 1}-${target.get('month') + 1}-${target.get('date')}`, 'YYYY-MM-DD');
           return moment.min(now, newTarget);
         }
       }
@@ -270,7 +270,7 @@ export default {
       }
       if (this.repeat) {
         if (!target.isAfter(now) && !target.isSame(now)) {
-          const newTarget = moment(`${now.get('year')}-${target.get('month') + 1}-${target.get('date')}`, 'YYYY-MM-DD');
+          const newTarget = moment(`${now.get('year') + 1}-${target.get('month') + 1}-${target.get('date')}`, 'YYYY-MM-DD');
           return moment.max(now, newTarget);
         }
       }
@@ -297,6 +297,11 @@ export default {
       } else if (!this.lunar && this.repeat) {
         target = this.getMomentFeature();
       }
+      // if (this.isCountDown()) {
+      //   target = this.getMomentPass();
+      // } else {
+      //   target = this.getMomentFeature();
+      // }
       // 显示农历
       if (this.currentShowLorS === 0) {
         const lunar = solar2lunar(target);
