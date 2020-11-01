@@ -1,17 +1,24 @@
 <template>
   <div class="card">
-    <div v-lazy:background-image="showImage" class="container">
+    <div
+      v-lazy:background-image="showImage"
+      class="container"
+    >
       <div
         :style="{ background: showTitleBgColor, color: textModeColor }"
-        class="head">{{ title }}</div>
+        class="head"
+      >
+        {{ title }}
+      </div>
       <div
+        ref="content"
         v-tap="changeContent"
         :style="{ background: showBodyBgColor, color: textModeColor }"
         class="content"
-        ref="content"
       >
         <span
-          :style="{ fontSize: contentSize + '%', color: textModeColor }">
+          :style="{ fontSize: contentSize + '%', color: textModeColor }"
+        >
           {{ showContent }}
         </span>
       </div>
@@ -19,7 +26,9 @@
         v-tap="changeLorS"
         :style="{ background: showBodyBgColor, color: textModeColor }"
         class="foot"
-      >{{ footTip() }}: {{ formatTarget() }}</div>
+      >
+        {{ footTip() }}: {{ formatTarget() }}
+      </div>
     </div>
   </div>
 </template>
@@ -285,8 +294,7 @@ export default {
           const solar = lunar2solar(this.getMomentTarget());
           target = moment(solar.date, 'YYYY-MM-DD');
         }
-      }
-      if (this.repeat) {
+      } else if (!this.lunar && this.repeat) {
         target = this.getMomentFeature();
       }
       // 显示农历

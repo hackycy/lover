@@ -65,7 +65,7 @@
 import our from '@/assets/our.jpeg';
 import me from '@/assets/me.jpeg';
 import her from '@/assets/her.jpeg';
-import DateCard from '@/components/datecard/index.vue';
+import DateCard from '@/components/DateCard/index.vue';
 import FireWork from '@/components/firework/index.vue';
 
 export default {
