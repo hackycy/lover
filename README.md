@@ -1,5 +1,7 @@
 # lover
 
+恋爱倒计时卡片：http://lover.si-yee.com，请在手机端页面打开。
+
 ## Project setup
 ```
 npm install
