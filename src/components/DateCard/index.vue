@@ -23,7 +23,11 @@ import {
   isAfter,
   subYears,
   subMonths,
-  subWeeks
+  subWeeks,
+  getDate,
+  toDate,
+  getMonth,
+  getYear
 } from 'date-fns'
 import { TIME_FORMAT, lunar2solar } from '@/utils'
 import {
@@ -72,7 +76,7 @@ export default defineComponent({
   setup(props) {
     // 显示的模式 0: 天数模式 1: 年模式 2: 月模式 3: 周模式
     const mode = ref(0)
-    const { target, title, lunar } = toRefs(props)
+    const { target, title, lunar, repeat } = toRefs(props)
     // 输出
     const countTime = ref('')
     // parse target
@@ -89,7 +93,7 @@ export default defineComponent({
     const currentDate = readonly(new Date())
 
     // 是否为倒数
-    const isReciprocal = ref(isAfter(targetDate, currentDate))
+    const isReciprocal = ref(repeat.value ? true : isAfter(targetDate, currentDate))
     const formatTitle = isReciprocal.value ? `${title.value}还有` : `${title.value}已经`
     // text size auto transform
     const transform = ref('translate3d(-50%, 0, 0)')
@@ -169,7 +173,23 @@ export default defineComponent({
 
     const calcTime = () => {
       if (isReciprocal.value) {
-        parseTime(targetDate, currentDate)
+
+        // 需要判断是否repeat
+        if (repeat.value) {
+          // 重复
+          let currentYear = getYear(currentDate)
+          const tDate = getDate(targetDate)
+          const tMonth = getMonth(targetDate)
+          const cDate = getDate(currentDate)
+          const cMonth = getMonth(currentDate)
+          if ((cMonth > tMonth) || (cDate > tDate)) {
+            // 如果当前时间已经过去了，那么将年份换到下一年
+            currentYear += 1
+          } 
+          parseTime(toDate(new Date(currentYear, tMonth, tDate)), currentDate)
+        } else {
+          parseTime(targetDate, currentDate)
+        }
       } else {
         parseTime(currentDate, targetDate)
       }
