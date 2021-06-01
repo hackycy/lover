@@ -1,12 +1,7 @@
 import { calendar } from './calendar';
-// eslint-disable-next-line import/prefer-default-export
-/**
- * 判断是否为整数
- * @param {*} num
- */
-export function isInt(num: any) {
-  return Math.floor(num) === num;
-}
+import { getYear, getMonth, getDate } from 'date-fns'
+
+export const TIME_FORMAT = 'yyyy-MM-dd'
 
 /**
  * 判断字符串长度，该方法中中文字符长度为2
@@ -25,19 +20,19 @@ export function strLength(str: string) {
 }
 
 /**
- * 农历转公历，需要传入Moment对象
+ * 农历转公历
  * @param {Moment} target
  */
-export function lunar2solar(target: any) {
-  return calendar.lunar2solar(target.get('year'), target.get('month') + 1, target.get('date'));
+export function lunar2solar(target: Date) {
+  return calendar.lunar2solar(getYear(target), getMonth(target), getDate(target));
 }
 
 /**
- * 公历转农历，需要传入Moment对象
+ * 公历转农历
  * @param {Moment} target
  */
-export function solar2lunar(target: any) {
-  return calendar.solar2lunar(target.get('year'), target.get('month') + 1, target.get('date'));
+export function solar2lunar(target: Date) {
+  return calendar.solar2lunar(getYear(target), getMonth(target), getDate(target));
 }
 
 /**

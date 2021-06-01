@@ -1,8 +1,8 @@
 import { App } from "vue"
 import '@vant/touch-emulator'
-import { Swipe, SwipeItem, Toast, Lazyload } from 'vant'
+import { Swipe, SwipeItem, Toast, Lazyload, Divider } from 'vant'
 
-const components = [ Swipe, SwipeItem, Toast ]
+const components = [ Swipe, SwipeItem, Toast, Divider ]
 
 export default {
   install: function(app: App) {
