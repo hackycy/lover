@@ -300,7 +300,7 @@ $border-radius: 2vw;
         font-style: bold;
         font-weight: bold;
         font-size: 18vh;
-        letter-spacing: 12px;
+        letter-spacing: 8px;
       }
     }
     .foot {
