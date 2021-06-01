@@ -79,22 +79,26 @@ export default defineComponent({
     const { target, title, lunar, repeat } = toRefs(props)
     // 输出
     const countTime = ref('')
-    // parse target
-    const parseTarget = parse(target.value, TIME_FORMAT, new Date())
-    let formatTarget
-    if (lunar.value) {
-      const solar: any = lunar2solar(parseTarget)
-      formatTarget =  parse(solar.date, TIME_FORMAT, new Date())
-    } else {
-      formatTarget = parseTarget
-    }
     // parse date
-    let targetDate = readonly(formatTarget)
+    const targetDate = readonly(
+      lunar.value
+        ? parse(
+            (lunar2solar(parse(target.value, TIME_FORMAT, new Date())) as any)
+              .date,
+            TIME_FORMAT,
+            new Date()
+          )
+        : parse(target.value, TIME_FORMAT, new Date())
+    )
     const currentDate = readonly(new Date())
 
     // 是否为倒数
-    const isReciprocal = ref(repeat.value ? true : isAfter(targetDate, currentDate))
-    const formatTitle = isReciprocal.value ? `${title.value}还有` : `${title.value}已经`
+    const isReciprocal = ref(
+      repeat.value ? true : isAfter(targetDate, currentDate)
+    )
+    const formatTitle = isReciprocal.value
+      ? `${title.value}还有`
+      : `${title.value}已经`
     // text size auto transform
     const transform = ref('translate3d(-50%, 0, 0)')
     // ref
@@ -118,8 +122,7 @@ export default defineComponent({
       if (mode.value === 1) {
         const years = differenceInYears(date, preDate)
         if (years <= 0) {
-          const days = differenceInDays(date, preDate)
-          countTime.value = days.toString()
+          mode.value += 1
         } else {
           let subDate = subYears(date, years)
           const months = differenceInMonths(subDate, preDate)
@@ -137,8 +140,7 @@ export default defineComponent({
       } else if (mode.value === 2) {
         const months = differenceInMonths(date, preDate)
         if (months <= 0) {
-          const days = differenceInDays(date, preDate)
-          countTime.value = days.toString()
+          mode.value += 1
         } else {
           let subDate = subMonths(date, months)
           const days = differenceInDays(subDate, preDate)
@@ -151,8 +153,7 @@ export default defineComponent({
       } else if (mode.value === 3) {
         const weeks = differenceInWeeks(date, preDate)
         if (weeks <= 0) {
-          const days = differenceInDays(date, preDate)
-          countTime.value = days.toString()
+          mode.value += 1
         } else {
           let subDate = subWeeks(date, weeks)
           const days = differenceInDays(subDate, preDate)
@@ -173,20 +174,37 @@ export default defineComponent({
 
     const calcTime = () => {
       if (isReciprocal.value) {
-
         // 需要判断是否repeat
         if (repeat.value) {
-          // 重复
-          let currentYear = getYear(currentDate)
-          const tDate = getDate(targetDate)
-          const tMonth = getMonth(targetDate)
-          const cDate = getDate(currentDate)
-          const cMonth = getMonth(currentDate)
-          if ((cMonth > tMonth) || (cDate > tDate)) {
-            // 如果当前时间已经过去了，那么将年份换到下一年
-            currentYear += 1
-          } 
-          parseTime(toDate(new Date(currentYear, tMonth, tDate)), currentDate)
+          if (lunar.value) {
+            // 处理农历
+            let currentYear = getYear(currentDate)
+            const sDateTime = parse(target.value, TIME_FORMAT, new Date())
+            const sDate = getDate(sDateTime)
+            const sMonth = getMonth(sDateTime)
+            // 获取今年的农历日
+            const nowLunarDatetime = parse((lunar2solar(toDate(new Date(currentYear, sMonth, sDate))) as any).date, TIME_FORMAT, new Date())
+            if (isAfter(nowLunarDatetime, currentDate)) {
+              // 今年农历还没过则继续使用今年月份
+              parseTime(nowLunarDatetime, currentDate)
+            } else {
+              // 已经过了生日则跳到下一年
+              const nextLunarDatetime = parse((lunar2solar(toDate(new Date(currentYear + 1, sMonth, sDate))) as any).date, TIME_FORMAT, new Date())
+              parseTime(nextLunarDatetime, currentDate)
+            }
+          } else {
+            // 处理阳历重复
+            let currentYear = getYear(currentDate)
+            const tDate = getDate(targetDate)
+            const tMonth = getMonth(targetDate)
+            const cDate = getDate(currentDate)
+            const cMonth = getMonth(currentDate)
+            if (cMonth > tMonth || cDate > tDate) {
+              // 如果当前时间已经过去了，那么将年份换到下一年
+              currentYear += 1
+            }
+            parseTime(toDate(new Date(currentYear, tMonth, tDate)), currentDate)
+          }
         } else {
           parseTime(targetDate, currentDate)
         }
@@ -252,10 +270,6 @@ $border-radius: 2vw;
   -webkit-flex-direction: column;
   font-family: sans-serif;
   font-size: 16px;
-  transition: 1s;
-  -moz-transition: 1s;
-  -webkit-transition: 1s;
-  -o-transition: 1s;
   .container {
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
     background-color: #ffffff;
@@ -289,6 +303,7 @@ $border-radius: 2vw;
       text-align: center;
       position: relative;
       box-sizing: border-box;
+      overflow: hidden;
 
       span {
         position: absolute;
@@ -301,6 +316,10 @@ $border-radius: 2vw;
         font-weight: bold;
         font-size: 18vh;
         letter-spacing: 8px;
+        transition: transform 0.2s ease;
+        -moz-transition: transform 0.2s ease;
+        -webkit-transition: transform 0.2s ease;
+        -o-transition: transform 0.2s ease;
       }
     }
     .foot {
