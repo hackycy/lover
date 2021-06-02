@@ -145,7 +145,7 @@ export default defineComponent({
 
     // 是否为倒数
     const isReciprocal = ref(isAfter(targetDate, currentDate))
-    const fotmatFooter = ref(format(targetDate, TIME_FORMAT))
+    const fotmatFooter = ref(format(targetDate, 'yyyy 年 M 月 dd 日'))
     const formatTitle = isReciprocal.value
       ? `${title.value}还有`
       : `${title.value}已经`
