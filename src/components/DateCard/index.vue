@@ -161,7 +161,7 @@ export default defineComponent({
       const counterWidth = counter.value?.clientWidth || 0
       if (counterWidth > containerWidth) {
         let r = containerWidth / counterWidth
-        transform.value = `translate3d(-50%, 0, 0) scale(${r * 0.8})`
+        transform.value = `translate3d(-50%, 0, 0) scale(${r * 0.75})`
       } else {
         transform.value = 'translate3d(-50%, 0, 0)'
       }
@@ -324,7 +324,7 @@ $border-radius: 2vw;
       overflow: hidden;
 
       span {
-        font-family: Monospace;
+        font-family: monospace,"PingFang SC",miui,system-ui,-apple-system,BlinkMacSystemFont,Helvetica Neue,Helvetica,sans-serif;
         position: absolute;
         left: 50%;
         display: block;
@@ -334,7 +334,7 @@ $border-radius: 2vw;
         font-style: bold;
         font-weight: bold;
         font-size: 16vh;
-        letter-spacing: 4px;
+        letter-spacing: 2px;
         transition: transform 0.2s ease;
         -moz-transition: transform 0.2s ease;
         -webkit-transition: transform 0.2s ease;
