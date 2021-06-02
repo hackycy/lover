@@ -346,7 +346,7 @@ $border-radius: 2vw;
       height: 7vh;
       line-height: 7vh;
       color: #8e8c8d;
-      font-size: 1vh;
+      font-size: 1.5vh;
       text-align: center;
       border-bottom-left-radius: $border-radius;
       border-bottom-right-radius: $border-radius;
