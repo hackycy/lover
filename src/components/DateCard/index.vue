@@ -308,6 +308,7 @@ $border-radius: 2vw;
       background: #138bdb;
       color: #ffffff;
       height: 8vh;
+      font-weight: 400;
       line-height: 8vh;
       text-align: center;
       font-size: 2.5vh;
