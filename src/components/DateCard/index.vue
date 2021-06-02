@@ -180,7 +180,7 @@ export default defineComponent({
           const days = differenceInDays(subDate, preDate)
           let format = `${years}年`
           if (months > 0) {
-            format += `${months}月`
+            format += `${months}个月`
           }
           if (days > 0) {
             format += `${days}天`
@@ -194,7 +194,7 @@ export default defineComponent({
         } else {
           let subDate = subMonths(date, months)
           const days = differenceInDays(subDate, preDate)
-          let format = `${months}月`
+          let format = `${months}个月`
           if (days > 0) {
             format += `${days}天`
           }
