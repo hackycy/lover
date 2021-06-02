@@ -8,7 +8,7 @@
         }}</span>
       </div>
       <van-divider :style="{ margin: '0 16px' }" />
-      <div class="foot">目标日：{{ target }}</div>
+      <div class="foot">目标日：{{ fotmatFooter }}</div>
     </div>
   </div>
 </template>
@@ -20,12 +20,14 @@ import {
   differenceInYears,
   differenceInWeeks,
   parse,
+  addHours,
   isAfter,
   subYears,
   subMonths,
   subWeeks,
   getDate,
   toDate,
+  format,
   getMonth,
   getYear
 } from 'date-fns'
@@ -79,23 +81,71 @@ export default defineComponent({
     const { target, title, lunar, repeat } = toRefs(props)
     // 输出
     const countTime = ref('')
+    // 当前时间
+    const currentDate = readonly(new Date())
+
     // parse date
-    const targetDate = readonly(
-      lunar.value
-        ? parse(
-            (lunar2solar(parse(target.value, TIME_FORMAT, new Date())) as any)
-              .date,
+    let formatTarget: Date = parse(target.value, TIME_FORMAT, new Date())
+    if (repeat.value) {
+      // 如果需要重复，那么开始处理
+      if (lunar.value) {
+        // 处理农历
+        let currentYear = getYear(currentDate)
+        const sDateTime = parse(target.value, TIME_FORMAT, new Date())
+        const sDate = getDate(sDateTime)
+        const sMonth = getMonth(sDateTime)
+        // 获取今年的农历日
+        const nowLunarDatetime = parse(
+          (lunar2solar(toDate(new Date(currentYear, sMonth, sDate))) as any)
+            .date,
+          TIME_FORMAT,
+          new Date()
+        )
+        if (isAfter(nowLunarDatetime, currentDate)) {
+          // 今年农历还没过则继续使用今年月份
+          formatTarget = nowLunarDatetime
+        } else {
+          // 已经过了生日则跳到下一年
+          formatTarget = parse(
+            (
+              lunar2solar(
+                toDate(new Date(currentYear + 1, sMonth, sDate))
+              ) as any
+            ).date,
             TIME_FORMAT,
             new Date()
           )
-        : parse(target.value, TIME_FORMAT, new Date())
-    )
-    const currentDate = readonly(new Date())
+        }
+      } else {
+        // 处理阳历重复
+        let currentYear = getYear(currentDate)
+        const tDate = getDate(formatTarget)
+        const tMonth = getMonth(formatTarget)
+        const cDate = getDate(currentDate)
+        const cMonth = getMonth(currentDate)
+        if (cMonth > tMonth || cDate > tDate) {
+          // 如果当前时间已经过去了，那么将年份换到下一年
+          currentYear += 1
+        }
+        formatTarget = toDate(new Date(currentYear, tMonth, tDate))
+      }
+    } else {
+      if (lunar.value) {
+        formatTarget = parse(
+          (lunar2solar(formatTarget) as any).date,
+          TIME_FORMAT,
+          new Date()
+        )
+      } else {
+        formatTarget = parse(target.value, TIME_FORMAT, new Date())
+      }
+    }
+
+    const targetDate = readonly(formatTarget)
 
     // 是否为倒数
-    const isReciprocal = ref(
-      repeat.value ? true : isAfter(targetDate, currentDate)
-    )
+    const isReciprocal = ref(isAfter(targetDate, currentDate))
+    const fotmatFooter = ref(format(targetDate, TIME_FORMAT))
     const formatTitle = isReciprocal.value
       ? `${title.value}还有`
       : `${title.value}已经`
@@ -174,40 +224,7 @@ export default defineComponent({
 
     const calcTime = () => {
       if (isReciprocal.value) {
-        // 需要判断是否repeat
-        if (repeat.value) {
-          if (lunar.value) {
-            // 处理农历
-            let currentYear = getYear(currentDate)
-            const sDateTime = parse(target.value, TIME_FORMAT, new Date())
-            const sDate = getDate(sDateTime)
-            const sMonth = getMonth(sDateTime)
-            // 获取今年的农历日
-            const nowLunarDatetime = parse((lunar2solar(toDate(new Date(currentYear, sMonth, sDate))) as any).date, TIME_FORMAT, new Date())
-            if (isAfter(nowLunarDatetime, currentDate)) {
-              // 今年农历还没过则继续使用今年月份
-              parseTime(nowLunarDatetime, currentDate)
-            } else {
-              // 已经过了生日则跳到下一年
-              const nextLunarDatetime = parse((lunar2solar(toDate(new Date(currentYear + 1, sMonth, sDate))) as any).date, TIME_FORMAT, new Date())
-              parseTime(nextLunarDatetime, currentDate)
-            }
-          } else {
-            // 处理阳历重复
-            let currentYear = getYear(currentDate)
-            const tDate = getDate(targetDate)
-            const tMonth = getMonth(targetDate)
-            const cDate = getDate(currentDate)
-            const cMonth = getMonth(currentDate)
-            if (cMonth > tMonth || cDate > tDate) {
-              // 如果当前时间已经过去了，那么将年份换到下一年
-              currentYear += 1
-            }
-            parseTime(toDate(new Date(currentYear, tMonth, tDate)), currentDate)
-          }
-        } else {
-          parseTime(targetDate, currentDate)
-        }
+        parseTime(addHours(targetDate, 24), currentDate)
       } else {
         parseTime(currentDate, targetDate)
       }
@@ -244,6 +261,7 @@ export default defineComponent({
 
     return {
       formatTitle,
+      fotmatFooter,
       isReciprocal,
       countTime,
       currentDate,
@@ -314,7 +332,7 @@ $border-radius: 2vw;
         color: #282828;
         font-style: bold;
         font-weight: bold;
-        font-size: 18vh;
+        font-size: 16vh;
         letter-spacing: 8px;
         transition: transform 0.2s ease;
         -moz-transition: transform 0.2s ease;

@@ -24,7 +24,7 @@ export function strLength(str: string) {
  * @param {Moment} target
  */
 export function lunar2solar(target: Date) {
-  return calendar.lunar2solar(getYear(target), getMonth(target), getDate(target));
+  return calendar.lunar2solar(getYear(target), getMonth(target) + 1, getDate(target));
 }
 
 /**
@@ -32,7 +32,7 @@ export function lunar2solar(target: Date) {
  * @param {Moment} target
  */
 export function solar2lunar(target: Date) {
-  return calendar.solar2lunar(getYear(target), getMonth(target), getDate(target));
+  return calendar.solar2lunar(getYear(target), getMonth(target) + 1, getDate(target));
 }
 
 /**
