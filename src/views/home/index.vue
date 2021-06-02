@@ -45,6 +45,8 @@ export default defineComponent({
     position: fixed;
     right: 2vw;
     bottom: 2vw;
+    font-size: 10px;
+    transform: scale(0.8);
     color: #ccc;
   }
 }
