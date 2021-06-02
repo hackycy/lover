@@ -324,6 +324,7 @@ $border-radius: 2vw;
       overflow: hidden;
 
       span {
+        font-family: Monospace;
         position: absolute;
         left: 50%;
         display: block;
@@ -333,7 +334,7 @@ $border-radius: 2vw;
         font-style: bold;
         font-weight: bold;
         font-size: 16vh;
-        letter-spacing: 8px;
+        letter-spacing: 4px;
         transition: transform 0.2s ease;
         -moz-transition: transform 0.2s ease;
         -webkit-transition: transform 0.2s ease;
