@@ -124,7 +124,7 @@ export const calendar = {
    *
    * @param {Object} 按照festival的格式输入数据，设置阳历节日
    */
-  setFestival(param = {}) {
+  setFestival(param: any = {}) {
     this.festival = param;
   },
 
@@ -132,7 +132,7 @@ export const calendar = {
    *
    * @param {Object} 按照lfestival的格式输入数据，设置农历节日
    */
-  setLunarFestival(param = {}) {
+  setLunarFestival(param: any = {}) {
     this.lfestival = param;
   },
 
@@ -247,7 +247,7 @@ export const calendar = {
     * @return Number
     * @eg:var count = calendar.lYearDays(1987) ;//count=387
     */
-  lYearDays(y) {
+  lYearDays(y: any) {
     let i; let
       sum = 348;
     for (i = 0x8000; i > 0x8; i >>= 1) { sum += (this.lunarInfo[y - 1900] & i) ? 1 : 0; }
@@ -260,7 +260,7 @@ export const calendar = {
     * @return Number (0-12)
     * @eg:var leapMonth = calendar.leapMonth(1987) ;//leapMonth=6
     */
-  leapMonth(y) { // 闰字编码 \u95f0
+  leapMonth(y: any) { // 闰字编码 \u95f0
     return (this.lunarInfo[y - 1900] & 0xf);
   },
 
@@ -270,7 +270,7 @@ export const calendar = {
     * @return Number (0、29、30)
     * @eg:var leapMonthDay = calendar.leapDays(1987) ;//leapMonthDay=29
     */
-  leapDays(y) {
+  leapDays(y: any, m?: any) {
     if (this.leapMonth(y)) {
       return ((this.lunarInfo[y - 1900] & 0x10000) ? 30 : 29);
     }
@@ -283,7 +283,7 @@ export const calendar = {
     * @return Number (-1、29、30)
     * @eg:var MonthDay = calendar.monthDays(1987,9) ;//MonthDay=29
     */
-  monthDays(y, m) {
+  monthDays(y: any, m: any) {
     if (m > 12 || m < 1) { return -1; }// 月份参数从1至12，参数错误返回-1
     return ((this.lunarInfo[y - 1900] & (0x10000 >> m)) ? 30 : 29);
   },
@@ -294,7 +294,7 @@ export const calendar = {
     * @return Number (-1、28、29、30、31)
     * @eg:var solarMonthDay = calendar.leapDays(1987) ;//solarMonthDay=30
     */
-  solarDays(y, m) {
+  solarDays(y: any, m: any) {
     if (m > 12 || m < 1) { return -1; } // 若参数错误 返回-1
     const ms = m - 1;
     if (ms == 1) { // 2月份的闰平规律测算后确认返回28或29
@@ -308,7 +308,7 @@ export const calendar = {
    * @param  lYear 农历年的年份数
    * @return Cn string
    */
-  toGanZhiYear(lYear) {
+  toGanZhiYear(lYear: any) {
     let ganKey = (lYear - 3) % 10;
     let zhiKey = (lYear - 3) % 12;
     if (ganKey == 0) ganKey = 10;// 如果余数为0则为最后一个天干
@@ -322,7 +322,7 @@ export const calendar = {
    * @param  cDay [description]
    * @return Cn string
    */
-  toAstro(cMonth, cDay) {
+  toAstro(cMonth: any, cDay: any) {
     const s = '\u9b54\u7faf\u6c34\u74f6\u53cc\u9c7c\u767d\u7f8a\u91d1\u725b\u53cc\u5b50\u5de8\u87f9\u72ee\u5b50\u5904\u5973\u5929\u79e4\u5929\u874e\u5c04\u624b\u9b54\u7faf';
     const arr = [20, 19, 21, 21, 21, 22, 23, 23, 23, 23, 22, 22];
     return `${s.substr(cMonth * 2 - (cDay < arr[cMonth - 1] ? 2 : 0), 2)}\u5ea7`;// 座
@@ -333,7 +333,7 @@ export const calendar = {
     * @param offset 相对甲子的偏移量
     * @return Cn string
     */
-  toGanZhi(offset) {
+  toGanZhi(offset: any) {
     return this.Gan[offset % 10] + this.Zhi[offset % 12];
   },
 
@@ -343,7 +343,7 @@ export const calendar = {
     * @return day Number
     * @eg:var _24 = calendar.getTerm(1987,3) ;//_24=4;意即1987年2月4日立春
     */
-  getTerm(y, n) {
+  getTerm(y: any, n: any) {
     if (y < 1900 || y > 2100) { return -1; }
     if (n < 1 || n > 24) { return -1; }
     const _table = this.sTermInfo[y - 1900];
@@ -395,7 +395,7 @@ export const calendar = {
     * @return Cn string
     * @eg:var cnMonth = calendar.toChinaMonth(12) ;//cnMonth='腊月'
     */
-  toChinaMonth(m) { // 月 => \u6708
+  toChinaMonth(m: any) { // 月 => \u6708
     if (m > 12 || m < 1) { return -1; } // 若参数错误 返回-1
     let s = this.nStr3[m - 1];
     s += '\u6708';// 加上月字
@@ -408,7 +408,7 @@ export const calendar = {
     * @return Cn string
     * @eg:var cnDay = calendar.toChinaDay(21) ;//cnMonth='廿一'
     */
-  toChinaDay(d) { // 日 => \u65e5
+  toChinaDay(d: any) { // 日 => \u65e5
     let s;
     switch (d) {
       case 10:
@@ -432,7 +432,7 @@ export const calendar = {
     * @return Cn string
     * @eg:var animal = calendar.getAnimal(1987) ;//animal='兔'
     */
-  getAnimal(y) {
+  getAnimal(y: any) {
     return this.Animals[(y - 4) % 12];
   },
 
@@ -444,7 +444,7 @@ export const calendar = {
     * @return JSON object
     * @eg:console.log(calendar.solar2lunar(1987,11,01));
     */
-  solar2lunar(y, m, d) { // 参数区间1900.1.31~2100.12.31
+  solar2lunar(y: any, m: any, d: any) { // 参数区间1900.1.31~2100.12.31
     y = parseInt(y);
     m = parseInt(m);
     d = parseInt(d);
@@ -465,9 +465,9 @@ export const calendar = {
     let i; var leap = 0; let
       temp = 0;
     // 修正ymd参数
-    var y = objDate.getFullYear();
-    var m = objDate.getMonth() + 1;
-    var d = objDate.getDate();
+    y = objDate.getFullYear();
+    m = objDate.getMonth() + 1;
+    d = objDate.getDate();
     let offset = (Date.UTC(objDate.getFullYear(), objDate.getMonth(), objDate.getDate()) - Date.UTC(1900, 0, 31)) / 86400000;
     for (i = 1900; i < 2101 && offset > 0; i++) {
       temp = this.lYearDays(i);
@@ -558,8 +558,8 @@ export const calendar = {
     const solarDate = `${y}-${m}-${d}`;
     const lunarDate = `${year}-${month}-${day}`;
 
-    const { festival } = this;
-    const { lfestival } = this;
+    const { festival } = this as any;
+    const { lfestival } = this as any;
 
     const festivalDate = `${m}-${d}`;
     const lunarFestivalDate = `${month}-${day}`;
@@ -600,11 +600,11 @@ export const calendar = {
     * @return JSON object
     * @eg:console.log(calendar.lunar2solar(1987,9,10));
     */
-  lunar2solar(y, m, d, isLeapMonth) { // 参数区间1900.1.31~2100.12.1
+  lunar2solar(y: any, m: any, d: any, isLeapMonth?: any) { // 参数区间1900.1.31~2100.12.1
     y = parseInt(y);
     m = parseInt(m);
     d = parseInt(d);
-    var isLeapMonth = !!isLeapMonth;
+    isLeapMonth = !!isLeapMonth;
     const leapOffset = 0;
     const leapMonth = this.leapMonth(y);
     const leapDay = this.leapDays(y);

@@ -1,411 +1,283 @@
 <template>
   <div class="card">
-    <div
-      v-lazy:background-image="showImage"
-      class="container"
-    >
-      <div
-        :style="{ background: showTitleBgColor, color: textModeColor }"
-        class="head"
-      >
-        {{ title }}
+    <div class="container">
+      <div class="head">{{ formatTitle }}</div>
+      <div ref="counterContainer" class="content" @click="onChangeMode">
+        <span ref="counter" :style="{ transform: transform }">{{
+          countTime
+        }}</span>
       </div>
-      <div
-        ref="content"
-        v-tap="changeContent"
-        :style="{ background: showBodyBgColor, color: textModeColor }"
-        class="content"
-      >
-        <span
-          :style="{ fontSize: contentSize + '%', color: textModeColor }"
-        >
-          {{ showContent }}
-        </span>
-      </div>
-      <div
-        v-tap="changeLorS"
-        :style="{ background: showBodyBgColor, color: textModeColor }"
-        class="foot"
-      >
-        {{ footTip() }}: {{ formatTarget() }}
-      </div>
+      <van-divider :style="{ margin: '0 16px' }" />
+      <div class="foot">目标日：{{ fotmatFooter }}</div>
     </div>
   </div>
 </template>
 
-<script>
-import moment from 'moment';
-import bg from '@/assets/bg.jpeg';
+<script lang="ts">
+import {
+  differenceInDays,
+  differenceInMonths,
+  differenceInYears,
+  differenceInWeeks,
+  parse,
+  addHours,
+  isAfter,
+  subYears,
+  subMonths,
+  subWeeks,
+  getDate,
+  toDate,
+  format,
+  getMonth,
+  getYear
+} from 'date-fns'
+import { TIME_FORMAT, lunar2solar } from '@/utils'
+import {
+  defineComponent,
+  onMounted,
+  onUnmounted,
+  readonly,
+  ref,
+  toRefs,
+  watch,
+  nextTick
+} from 'vue'
 
-import { strLength, lunar2solar, solar2lunar } from '@/common/util';
-
-export default {
+export default defineComponent({
   name: 'DateCard',
   props: {
-    backdropMode: {
-      type: String,
-      default: 'color',
-      validator(value) {
-        // 这个值必须匹配下列字符串中的一个
-        return ['color', 'image'].indexOf(value) !== -1;
-      },
-    },
-    textMode: {
-      type: String,
-      default: 'dark',
-      validator(value) {
-        // 这个值必须匹配下列字符串中的一个
-        return ['dark', 'light', 'auto'].indexOf(value) !== -1;
-      },
-    },
-    backdropImage: {
-      type: String,
-      default: bg,
-    },
+    /**
+     * 卡片标题
+     */
     title: {
       type: String,
-      default: '安利标题',
-    },
-    titleBgColor: {
-      type: String,
-      default: '#3385bc',
+      default: '倒计时卡片'
     },
     /**
-     * 目标日大于现在则为倒数，目标日为过去则为正数
+     * 日期格式字符串， 格式为 yyyy-MM-dd
      */
-    targetDate: {
+    target: {
       type: String,
-      default: '2017-3-22',
+      default: '2017-03-22'
     },
     /**
-     * 是否为农历
+     * 是否为农历，默认为false
      */
     lunar: {
       type: Boolean,
-      default: false,
+      default: false
     },
     /**
-     * 如果设置为重复，则无法进行对过去进行正数，只允许对未来进行倒数
+     * 是否重复
      */
     repeat: {
       type: Boolean,
-      default: false,
-    },
+      default: false
+    }
   },
-  data() {
-    return {
-      // 0为显示天数，1为显示年月日，2为显示月日，3为显示周日
-      // targetDate: '2017-3-22',
-      showContent: '',
-      contentSize: 100,
-      // 0为显示天数，1为显示年月日，2为显示月日，3为显示周日
-      currentShowStatus: -1,
-      // 0为显示农历目标日， 1为显示新历目标日
-      currentShowLorS: 1,
-    };
-  },
-  computed: {
-    textModeColor() {
-      if (this.textMode === 'dark') {
-        return 'black';
-      }
-      return '#ffffff';
-    },
-    showImage() {
-      return this.backdropMode === 'image' ? this.backdropImage : '';
-    },
-    showTitleBgColor() {
-      return this.backdropMode === 'image' ? 'transparent' : this.titleBgColor;
-    },
-    showBodyBgColor() {
-      return this.backdropMode === 'image' ? 'transparent' : '#f3f3f3';
-    },
-  },
-  watch: {
-    /**
-     * 点击事件处理后会改变showContent值，监听showContent属性改变Content大小
-     */
-    showContent(newContent) {
-      this.changeSize(strLength(newContent));
-    },
-    /**
-     * 根据点击事件改变的状态改变字体大小以及显示的格式
-     */
-    currentShowStatus(newStatus) {
-      switch (newStatus) {
-        case 0: {
-          this.showContent = this.getDay();
-          break;
-        }
-        case 1: {
-          const year = this.getYear();
-          if (year) {
-            this.showContent = year;
-          } else {
-            this.currentShowStatus += 1;
-          }
-          break;
-        }
-        case 2: {
-          const month = this.getMonth();
-          if (month) {
-            this.showContent = month;
-          } else {
-            this.currentShowStatus += 1;
-          }
-          break;
-        }
-        case 3: {
-          const week = this.getWeek();
-          if (week) {
-            this.showContent = week;
-          } else {
-            this.currentShowStatus = 0;
-          }
-          break;
-        }
-        default:
-          this.showContent = this.getDay();
-      }
-    },
-  },
-  mounted() {
-    this.showContent = this.getDay();
-    this.currentShowStatus = 0;
-    // this.showContent = '66年24个月30天';
-  },
-  methods: {
-    getMomentNow() {
-      return moment(moment().format('YYYY-MM-DD'));
-    },
-    getMomentTarget() {
-      return moment(this.targetDate, 'YYYY-MM-DD');
-    },
-    /**
-     * 是否为倒数
-     */
-    isCountDown() {
-      if (this.repeat) {
-        return true;
-      }
-      if (this.lunar) {
-        const solar = lunar2solar(this.getMomentTarget());
-        const solarMoment = moment(solar.date, 'YYYY-MM-DD');
-        return this.getMomentNow().isBefore(solarMoment);
-      }
-      return this.getMomentNow().isBefore(this.getMomentTarget());
-    },
-    /**
-     * 获取过去时间
-     */
-    getMomentPassCheck() {
-      const now = this.getMomentNow();
-      const target = this.getMomentTarget();
-      if (this.lunar) {
-        if (!this.repeat) {
-          const solar = lunar2solar(target);
-          const solarMoment = moment(solar.date, 'YYYY-MM-DD');
-          return moment.min(now, solarMoment);
-        }
-        // 因为直接获取当年年份会出现一个问题：农历是2019年12月8日，但是还没过，而新历已经是2020年，则下面代码就会提取错误
-        // 先提取目标日的月和日转换成今年的月日
-        let now2Lunar = moment(`${now.get('year') - 1}-${target.get('month') + 1}-${target.get('date')}`, 'YYYY-MM-DD');
-        // 在进行农历转换
-        let solar = lunar2solar(now2Lunar);
-        let solarMoment = moment(solar.date, 'YYYY-MM-DD');
-        if (!solarMoment.isAfter(now) && !solarMoment.isSame(now)) {
-          now2Lunar = moment(`${now.get('year')}-${target.get('month') + 1}-${target.get('date')}`, 'YYYY-MM-DD');
-          solar = lunar2solar(now2Lunar);
-          solarMoment = moment(solar.date, 'YYYY-MM-DD');
-        }
-        // 判断是否在现在是否已经超过目标日转换后的公历，如果超过则转换成下一年。
-        if (!solarMoment.isAfter(now) && !solarMoment.isSame(now)) {
-          now2Lunar = moment(`${now.get('year') + 1}-${target.get('month') + 1}-${target.get('date')}`, 'YYYY-MM-DD');
-          solar = lunar2solar(now2Lunar);
-          solarMoment = moment(solar.date, 'YYYY-MM-DD');
-        }
-        return moment.min(now, solarMoment);
-      }
-      if (this.repeat) {
-        if (!target.isAfter(now) && !target.isSame(now)) {
-          const newTarget = moment(`${now.get('year') + 1}-${target.get('month') + 1}-${target.get('date')}`, 'YYYY-MM-DD');
-          return moment.min(now, newTarget);
-        }
-      }
-      return moment.min(now, target);
-    },
-    getMomentPass() {
-      return moment(this.getMomentPassCheck().format('YYYY-MM-DD'));
-    },
-    /**
-     * 获取未来时间
-     */
-    getMomentFeatureCheck() {
-      const now = this.getMomentNow();
-      const target = this.getMomentTarget();
-      if (this.lunar) {
-        if (!this.repeat) {
-          const solar = lunar2solar(target);
-          const solarMoment = moment(solar.date, 'YYYY-MM-DD');
-          return moment.max(now, solarMoment);
-        }
-        // 因为直接获取当年年份会出现一个问题：农历是2019年12月8日，但是还没过，而新历已经是2020年，则下面代码就会提取错误
-        // 先提取目标日的月和日转换成今年的月日
-        let now2Lunar = moment(`${now.get('year') - 1}-${target.get('month') + 1}-${target.get('date')}`, 'YYYY-MM-DD');
-        // 在进行农历转换
-        let solar = lunar2solar(now2Lunar);
-        let solarMoment = moment(solar.date, 'YYYY-MM-DD');
-        if (!solarMoment.isAfter(now) && !solarMoment.isSame(now)) {
-          now2Lunar = moment(`${now.get('year')}-${target.get('month') + 1}-${target.get('date')}`, 'YYYY-MM-DD');
-          solar = lunar2solar(now2Lunar);
-          solarMoment = moment(solar.date, 'YYYY-MM-DD');
-        }
-        // 判断是否在现在是否已经超过目标日转换后的公历，如果超过则转换成下一年。
-        if (!solarMoment.isAfter(now) && !solarMoment.isSame(now)) {
-          now2Lunar = moment(`${now.get('year') + 1}-${target.get('month') + 1}-${target.get('date')}`, 'YYYY-MM-DD');
-          solar = lunar2solar(now2Lunar);
-          solarMoment = moment(solar.date, 'YYYY-MM-DD');
-        }
-        return moment.max(now, solarMoment);
-      }
-      if (this.repeat) {
-        if (!target.isAfter(now) && !target.isSame(now)) {
-          const newTarget = moment(`${now.get('year') + 1}-${target.get('month') + 1}-${target.get('date')}`, 'YYYY-MM-DD');
-          return moment.max(now, newTarget);
-        }
-      }
-      return moment.max(now, target);
-    },
-    getMomentFeature() {
-      return moment(this.getMomentFeatureCheck().format('YYYY-MM-DD'));
-    },
-    footTip() {
-      return this.isCountDown() ? '目标日' : '起始日';
-    },
-    /**
-     * 目标日格式转换
-     */
-    formatTarget() {
-      let target = this.getMomentTarget();
-      if (this.lunar) {
-        if (this.repeat) {
-          target = this.getMomentFeature();
+  setup(props) {
+    // 显示的模式 0: 天数模式 1: 年模式 2: 月模式 3: 周模式
+    const mode = ref(0)
+    const { target, title, lunar, repeat } = toRefs(props)
+    // 输出
+    const countTime = ref('')
+    // 当前时间
+    const currentDate = readonly(new Date())
+
+    // parse date
+    let formatTarget: Date = parse(target.value, TIME_FORMAT, new Date())
+    if (repeat.value) {
+      // 如果需要重复，那么开始处理
+      if (lunar.value) {
+        // 处理农历
+        let currentYear = getYear(currentDate)
+        const sDateTime = parse(target.value, TIME_FORMAT, new Date())
+        const sDate = getDate(sDateTime)
+        const sMonth = getMonth(sDateTime)
+        // 获取今年的农历日
+        const nowLunarDatetime = parse(
+          (lunar2solar(toDate(new Date(currentYear, sMonth, sDate))) as any)
+            .date,
+          TIME_FORMAT,
+          new Date()
+        )
+        if (isAfter(nowLunarDatetime, currentDate)) {
+          // 今年农历还没过则继续使用今年月份
+          formatTarget = nowLunarDatetime
         } else {
-          const solar = lunar2solar(this.getMomentTarget());
-          target = moment(solar.date, 'YYYY-MM-DD');
+          // 已经过了生日则跳到下一年
+          formatTarget = parse(
+            (
+              lunar2solar(
+                toDate(new Date(currentYear + 1, sMonth, sDate))
+              ) as any
+            ).date,
+            TIME_FORMAT,
+            new Date()
+          )
         }
-      } else if (!this.lunar && this.repeat) {
-        target = this.getMomentFeature();
+      } else {
+        // 处理阳历重复
+        let currentYear = getYear(currentDate)
+        const tDate = getDate(formatTarget)
+        const tMonth = getMonth(formatTarget)
+        const cDate = getDate(currentDate)
+        const cMonth = getMonth(currentDate)
+        if (cMonth > tMonth || cDate > tDate) {
+          // 如果当前时间已经过去了，那么将年份换到下一年
+          currentYear += 1
+        }
+        formatTarget = toDate(new Date(currentYear, tMonth, tDate))
       }
-      // if (this.isCountDown()) {
-      //   target = this.getMomentPass();
-      // } else {
-      //   target = this.getMomentFeature();
-      // }
-      // 显示农历
-      if (this.currentShowLorS === 0) {
-        const lunar = solar2lunar(target);
-        return `${lunar.gzYear}(${lunar.lYear}) ${lunar.IMonthCn} ${lunar.IDayCn}`;
+    } else {
+      if (lunar.value) {
+        formatTarget = parse(
+          (lunar2solar(formatTarget) as any).date,
+          TIME_FORMAT,
+          new Date()
+        )
+      } else {
+        formatTarget = parse(target.value, TIME_FORMAT, new Date())
       }
-      // 显示公历
-      return target.format('YYYY-MM-DD dddd');
-    },
-    getDay() {
-      const time = this.getMomentFeature().diff(this.getMomentPass(), 'days');
-      return `${time}`;
-    },
-    getYear() {
-      const years = this.getMomentFeature().diff(this.getMomentPass(), 'years');
-      if (years > 0) {
-        // 获取与target相隔了time年的那天
-        const momentAddYear = this.getMomentPass().add(years, 'years');
-        // 判断月份差值
-        const months = this.getMomentFeature().diff(momentAddYear, 'months');
-        // 判断是否大于当前时间所在月份
-        if (months > 0) {
-          const momentSubMonth = momentAddYear.add(months, 'months');
-          const days = this.getMomentFeature().diff(momentSubMonth, 'days');
+    }
+
+    const targetDate = readonly(formatTarget)
+
+    // 是否为倒数
+    const isReciprocal = ref(isAfter(targetDate, currentDate))
+    const fotmatFooter = ref(format(targetDate, TIME_FORMAT))
+    const formatTitle = isReciprocal.value
+      ? `${title.value}还有`
+      : `${title.value}已经`
+    // text size auto transform
+    const transform = ref('translate3d(-50%, 0, 0)')
+    // ref
+    const counterContainer = ref<HTMLElement | null>(null)
+    const counter = ref<HTMLElement | null>(null)
+
+    // 让文字自适应大小
+    const handleTransform = () => {
+      const containerWidth = counterContainer.value?.clientWidth || 0
+      const counterWidth = counter.value?.clientWidth || 0
+      if (counterWidth > containerWidth) {
+        let r = containerWidth / counterWidth
+        transform.value = `translate3d(-50%, 0, 0) scale(${r * 0.75})`
+      } else {
+        transform.value = 'translate3d(-50%, 0, 0)'
+      }
+    }
+
+    // 计算时间
+    const parseTime = (date: Date, preDate: Date) => {
+      if (mode.value === 1) {
+        const years = differenceInYears(date, preDate)
+        if (years <= 0) {
+          mode.value += 1
+        } else {
+          let subDate = subYears(date, years)
+          const months = differenceInMonths(subDate, preDate)
+          subDate = subMonths(subDate, months)
+          const days = differenceInDays(subDate, preDate)
+          let format = `${years}年`
+          if (months > 0) {
+            format += `${months}月`
+          }
           if (days > 0) {
-            return `${years}年${months}个月${days}天`;
+            format += `${days}天`
           }
-          return `${years}年${months}个月`;
+          countTime.value = format
         }
-        const days = this.getMomentFeature().diff(momentAddYear, 'days');
-        if (days > 0) {
-          return `${years}年${days}天`;
-        }
-        return `${years}年`;
-      }
-      return '';
-    },
-    getMonth() {
-      const months = this.getMomentFeature().diff(this.getMomentPass(), 'months');
-      if (months > 0) {
-        const momentAddMonth = this.getMomentPass().add(months, 'months');
-        const days = this.getMomentFeature().diff(momentAddMonth, 'days');
-        if (days > 0) {
-          return `${months}个月${days}天`;
-        }
-        return `${months}个月`;
-      }
-      return '';
-    },
-    getWeek() {
-      const weeks = this.getMomentFeature().diff(this.getMomentPass(), 'weeks');
-      if (weeks > 0) {
-        const momentAddWeek = this.getMomentPass().add(weeks, 'weeks');
-        const days = this.getMomentFeature().diff(momentAddWeek, 'days');
-        if (days > 0) {
-          return `${weeks}周${days}天`;
-        }
-        return `${weeks}周`;
-      }
-      return '';
-    },
-    /**
-     * 改变日历中字体的大小
-     */
-    changeSize(contentLength) {
-      this.$nextTick(() => {
-        let scale;
-        if (contentLength === 1) {
-          scale = 4;
-        } else if (contentLength > 1 && contentLength <= 5) {
-          scale = 8;
+      } else if (mode.value === 2) {
+        const months = differenceInMonths(date, preDate)
+        if (months <= 0) {
+          mode.value += 1
         } else {
-          scale = 10;
+          let subDate = subMonths(date, months)
+          const days = differenceInDays(subDate, preDate)
+          let format = `${months}月`
+          if (days > 0) {
+            format += `${days}天`
+          }
+          countTime.value = format
         }
-        const contentWidth = this.$refs.content.offsetWidth;
-        this.contentSize = contentWidth / contentLength * scale;
-      });
-    },
-    /**
-     * 转换显示格式
-     */
-    changeContent() {
-      if (this.currentShowStatus === 3) {
-        this.currentShowStatus = 0;
+      } else if (mode.value === 3) {
+        const weeks = differenceInWeeks(date, preDate)
+        if (weeks <= 0) {
+          mode.value += 1
+        } else {
+          let subDate = subWeeks(date, weeks)
+          const days = differenceInDays(subDate, preDate)
+          let format = `${weeks}周`
+          if (days > 0) {
+            format += `${days}天`
+          }
+          countTime.value = format
+        }
       } else {
-        this.currentShowStatus += 1;
+        const days = differenceInDays(date, preDate)
+        countTime.value = days.toString()
       }
-    },
-    changeLorS() {
-      if (this.lunar && this.currentShowLorS === 1) {
-        this.currentShowLorS = 0;
-      } else if (this.lunar && this.currentShowLorS === 0) {
-        this.currentShowLorS = 1;
+      nextTick(() => {
+        handleTransform()
+      })
+    }
+
+    const calcTime = () => {
+      if (isReciprocal.value) {
+        parseTime(addHours(targetDate, 24), currentDate)
       } else {
-        this.currentShowLorS = 1;
+        parseTime(currentDate, targetDate)
       }
-      this.formatTarget();
-    },
-  },
-};
+    }
+
+    calcTime()
+
+    // watch mode
+    watch(mode, (cMode, pMode) => {
+      // reset size
+      transform.value = 'translate3d(-50%, 0, 0)'
+      nextTick(() => {
+        calcTime()
+      })
+    })
+
+    onMounted(() => {
+      handleTransform()
+      // add event listener
+      window.addEventListener('resize', handleTransform)
+    })
+
+    onUnmounted(() => {
+      window.removeEventListener('resize', handleTransform)
+    })
+
+    const onChangeMode = () => {
+      if (mode.value === 3) {
+        mode.value = 0
+      } else {
+        mode.value += 1
+      }
+    }
+
+    return {
+      formatTitle,
+      fotmatFooter,
+      isReciprocal,
+      countTime,
+      currentDate,
+      targetDate,
+      transform,
+      mode,
+      counter,
+      counterContainer,
+      onChangeMode
+    }
+  }
+})
 </script>
 
 <style lang="scss" scoped>
 $border-radius: 2vw;
-
 .card {
   background: transparent;
   padding: 4vw;
@@ -416,27 +288,27 @@ $border-radius: 2vw;
   -webkit-flex-direction: column;
   font-family: sans-serif;
   font-size: 16px;
-  transition: 1s;
-  -moz-transition: 1s;
-  -webkit-transition: 1s;
-  -o-transition: 1s;
-
   .container {
-    background: #ffffff;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    background-color: #ffffff;
+    opacity: 0.8;
     background-repeat: no-repeat;
     background-size: cover;
     background-clip: border-box;
     background-position: center;
     border-radius: $border-radius;
+    letter-spacing: 1.25px;
     // color: #ffffff;
-    transition: .5s;
-    -moz-transition: .5s;
-    -webkit-transition: .5s;
-    -o-transition: .5s;
-
+    transition: 0.5s;
+    -moz-transition: 0.5s;
+    -webkit-transition: 0.5s;
+    -o-transition: 0.5s;
     .head {
-      // background: #3385bc;
+      box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+      background: #138bdb;
+      color: #ffffff;
       height: 8vh;
+      font-weight: 400;
       line-height: 8vh;
       text-align: center;
       font-size: 2.5vh;
@@ -444,29 +316,40 @@ $border-radius: 2vw;
       border-top-right-radius: $border-radius;
       // opacity: 0.2;
     }
-
     .content {
       height: 30vh;
-      line-height: 30vh;
+      width: 100%;
       text-align: center;
-      color: #282828;
-      font-style: bold;
-      font-weight: bold;
-      // background: #f3f3f3;
-      opacity: 0.7;
-    }
+      position: relative;
+      box-sizing: border-box;
+      overflow: hidden;
 
+      span {
+        font-family: monospace,"PingFang SC",miui,system-ui,-apple-system,BlinkMacSystemFont,Helvetica Neue,Helvetica,sans-serif;
+        position: absolute;
+        left: 50%;
+        display: block;
+        white-space: nowrap;
+        line-height: 30vh;
+        color: #282828;
+        font-style: bold;
+        font-weight: bold;
+        font-size: 16vh;
+        letter-spacing: 2px;
+        transition: transform 0.2s ease;
+        -moz-transition: transform 0.2s ease;
+        -webkit-transition: transform 0.2s ease;
+        -o-transition: transform 0.2s ease;
+      }
+    }
     .foot {
       height: 7vh;
       line-height: 7vh;
       color: #8e8c8d;
       font-size: 1.5vh;
       text-align: center;
-      background: #f3f3f3;
       border-bottom-left-radius: $border-radius;
       border-bottom-right-radius: $border-radius;
-      // background: #f3f3f3;
-      // opacity: 0.7;
     }
   }
 }
