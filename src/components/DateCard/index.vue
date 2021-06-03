@@ -145,12 +145,12 @@ export default defineComponent({
 
     // 是否为倒数
     const isReciprocal = ref(isAfter(targetDate, currentDate))
-    const fotmatFooter = ref(format(targetDate, TIME_FORMAT))
+    const fotmatFooter = ref(format(targetDate, 'yyyy 年 M 月 dd 日'))
     const formatTitle = isReciprocal.value
       ? `${title.value}还有`
       : `${title.value}已经`
     // text size auto transform
-    const transform = ref('translate3d(-50%, 0, 0)')
+    const transform = ref('translate3d(-50%, 0, 0) scale(1)')
     // ref
     const counterContainer = ref<HTMLElement | null>(null)
     const counter = ref<HTMLElement | null>(null)
@@ -163,7 +163,7 @@ export default defineComponent({
         let r = containerWidth / counterWidth
         transform.value = `translate3d(-50%, 0, 0) scale(${r * 0.75})`
       } else {
-        transform.value = 'translate3d(-50%, 0, 0)'
+        transform.value = 'translate3d(-50%, 0, 0) scale(1)'
       }
     }
 
@@ -180,7 +180,7 @@ export default defineComponent({
           const days = differenceInDays(subDate, preDate)
           let format = `${years}年`
           if (months > 0) {
-            format += `${months}月`
+            format += `${months}个月`
           }
           if (days > 0) {
             format += `${days}天`
@@ -194,7 +194,7 @@ export default defineComponent({
         } else {
           let subDate = subMonths(date, months)
           const days = differenceInDays(subDate, preDate)
-          let format = `${months}月`
+          let format = `${months}个月`
           if (days > 0) {
             format += `${days}天`
           }
@@ -235,7 +235,7 @@ export default defineComponent({
     // watch mode
     watch(mode, (cMode, pMode) => {
       // reset size
-      transform.value = 'translate3d(-50%, 0, 0)'
+      transform.value = 'translate3d(-50%, 0, 0) scale(1)'
       nextTick(() => {
         calcTime()
       })
@@ -325,7 +325,7 @@ $border-radius: 2vw;
       overflow: hidden;
 
       span {
-        font-family: monospace,"PingFang SC",miui,system-ui,-apple-system,BlinkMacSystemFont,Helvetica Neue,Helvetica,sans-serif;
+        font-family: "lucida grande", "lucida sans unicode", lucida, helvetica, "Hiragino Sans GB", "MicrosoftYaHei", "WenQuanYi Micro Hei", sans-serif;
         position: absolute;
         left: 50%;
         display: block;
@@ -334,12 +334,12 @@ $border-radius: 2vw;
         color: #282828;
         font-style: bold;
         font-weight: bold;
-        font-size: 16vh;
+        font-size: 14vh;
         letter-spacing: 2px;
-        transition: transform 0.2s ease;
-        -moz-transition: transform 0.2s ease;
-        -webkit-transition: transform 0.2s ease;
-        -o-transition: transform 0.2s ease;
+        transition: all 0.5s ease;
+        -moz-transition: all 0.5s ease;
+        -webkit-transition: all 0.5s ease;
+        -o-transition: all 0.5s ease;
       }
     }
     .foot {
