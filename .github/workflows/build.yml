@@ -1,7 +1,3 @@
-# main.yml
-# https://github.com/marketplace/actions/flutter-action
-# https://github.com/marketplace/actions/create-release
-# 工作流程的名字
 name: Build
 
 # 工作流程触发的时机，这里是当一个版本标签推送到仓库时触发
