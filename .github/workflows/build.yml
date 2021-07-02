@@ -31,4 +31,5 @@ jobs:
         with:
           context: .
           push: true
-          tags: lover:latest
+          tags: |
+            registry.cn-hangzhou.aliyuncs.com/lover/app:latest
