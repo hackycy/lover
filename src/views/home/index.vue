@@ -2,12 +2,6 @@
   <div class="home-container">
     <van-swipe indicator-color="#ffffff">
       <van-swipe-item>
-        <date-card title="我们在一起" target="2017-03-22"></date-card>
-      </van-swipe-item>
-      <van-swipe-item>
-        <date-card title="小宝贝生日" target="1995-12-08" lunar repeat></date-card>
-      </van-swipe-item>
-      <van-swipe-item>
         <date-card title="我的生日" target="1997-06-26" lunar repeat></date-card>
       </van-swipe-item>
       <template #indicator="{ active }">
